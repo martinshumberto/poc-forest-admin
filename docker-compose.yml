@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile
     container_name: forest-backend
     depends_on:
-      - postgres
+      - mongodb
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.forest-backend.rule=Host(`${DOMAIN}`)"
@@ -17,22 +17,27 @@ services:
       - "traefik.http.routers.forest-backend.tls.certresolver=myresolver"
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
+      DATABASE_URL: mongodb://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
       FOREST_ENV_SECRET: ${FOREST_ENV_SECRET}
       FOREST_AUTH_SECRET: ${FOREST_AUTH_SECRET}
     volumes:
       - .:/usr/src/app
     restart: always
 
-  postgres:
-    image: postgres:15
-    container_name: forest-postgres
-    environment:
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
+  mongodb:
+    image: mongo:6.0
+    container_name: forest-mongodb
+    ports:
+      - "27017:27017"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongodb_data:/data/db
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DATABASE_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DATABASE_NAME}
+    env_file:
+      - .env
     restart: always
 
   traefik:
@@ -55,5 +60,5 @@ services:
     restart: always
 
 volumes:
-  postgres_data:
+  mongodb_data:
   letsencrypt:
