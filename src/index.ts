@@ -1,4 +1,6 @@
-import type { Agent } from "@forestadmin/forest-cloud";
+import type { Agent } from '@forestadmin/forest-cloud';
+
+import { Schema } from '../typings';
 
 /*
 You can find the documentation of the agent at the following URL to
@@ -12,4 +14,6 @@ Run with npm or yarn this command to publish this code to your backend.
 ================== forestadmin:build:package:publish ==================
 =======================================================================
 */
-export default function customizeAgent(agent: Agent) {}
+export default function customizeAgent(agent: Agent<Schema>) {
+
+}
